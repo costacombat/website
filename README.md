@@ -3,16 +3,18 @@
 Static site for Costa Combat, the studio's only brand since Brand Reference
 v2.0. It moved here from bahiamovement.com, which now only redirects. No build
 step — `public/` is served as-is by a static-assets Cloudflare Worker (not a
-Pages project; see Deploy below). The Worker and repo keep their old
+Pages project; see Deploy below). One small script, `src/worker.js`, answers
+`/api/instagram` and nothing else. The Worker and repo keep their old
 `bahiamovement` name; internal names may stay, per the guide.
 
 Contents: the home page with the weekly schedule, the two launch campaign
 landing pages, and the short links that the printed QR codes use.
 
 ```
-wrangler.jsonc                          Cloudflare Worker config — assets.directory
+wrangler.jsonc                          Cloudflare Worker config — assets.directory, /api/* route, cron
+src/worker.js                           /api/instagram: latest posts, token kept server-side
 public/
-├── index.html                          home (Spanish): classes, schedule, coaches, FAQ, contact
+├── index.html                          home (Spanish): classes, schedule, coaches, Instagram, FAQ, contact
 ├── en/index.html                       home (English) — a full copy, see Editing
 ├── sitemap.xml                         the two home pages; submit in Search Console
 ├── _redirects                          short links — costacombat.com/a1 and friends
@@ -27,7 +29,7 @@ public/
 │   ├── dojo-rooftop.jpg                dojo + rooftop split, above the home schedule (+ .webp)
 │   ├── og-costa-combat.png             1200x630 social preview (white mark on Costa Black)
 │   ├── site.css                        brand tokens + page styles
-│   └── site.js                         language toggle + WhatsApp prefill
+│   └── site.js                         language toggle + WhatsApp prefill + Instagram grid
 └── costa-combat/promos/
     ├── a/index.html                    variant A — with pricing
     └── b/index.html                    variant B — no pricing
@@ -56,9 +58,11 @@ This deploys as a **static-assets Worker**, not a Pages project. Workers have no
 "build output directory" setting in the dashboard — `assets.directory` in
 `wrangler.jsonc` does that job, which is why the config lives in the repo.
 
-There is no `main` key in `wrangler.jsonc`, so no Worker code runs. Cloudflare
-serves `public/` directly. `_headers` is read from inside the assets directory,
-the same as it would be under Pages.
+Cloudflare serves `public/` directly. `src/worker.js` runs only for `/api/*`
+(`run_worker_first` in `wrangler.jsonc`), so every page is still a plain static
+file and a broken script can't take them down. `_headers` is read from inside
+the assets directory, the same as it would be under Pages; it doesn't apply to
+`/api/*`, which sets its own headers.
 
 Dashboard settings, which should already be correct:
 
@@ -155,6 +159,42 @@ Business Profile slug). Unlike the Cloudflare beacon, the Google tag sets cookie
 any new page; `404.html` has it but does not load `site.js`, so its WhatsApp
 links are not counted.
 
+## Instagram feed
+
+The home pages have an "En Instagram" / "On Instagram" section between the
+schedule and the FAQ. It always shows a follow link. When the Worker can reach
+Instagram it also shows the six latest posts, each linking to the post.
+
+```
+browser  ->  /api/instagram  (src/worker.js, cached 1 h)  ->  graph.instagram.com
+```
+
+The access token lives only in Cloudflare, never in the page or in this repo.
+Until it is set, `/api/instagram` returns no posts and the section is just the
+follow link, so the site works the same either way.
+
+**One-time setup** (needs the Instagram account to be a Professional account —
+Business or Creator, switchable free in the Instagram app):
+
+1. At developers.facebook.com, create an app of type *Business*, add the
+   **Instagram** product, and choose *API setup with Instagram login*.
+2. Under *Generate access tokens*, add the studio's Instagram account and
+   generate a token. It is a long-lived token (60 days); permission needed is
+   `instagram_business_basic`.
+3. Store it as a Worker secret, from this repo:
+   `npx wrangler secret put IG_ACCESS_TOKEN` (or Workers & Pages →
+   `bahiamovement` → Settings → Variables and Secrets → add, type *Secret*).
+4. Optional but recommended, so the token never expires: create a KV namespace
+   (`npx wrangler kv namespace create IG_KV`) and uncomment the `kv_namespaces`
+   line in `wrangler.jsonc` with its id. The weekly cron then refreshes the
+   token and keeps the new one in KV. Without KV the token must be regenerated
+   and re-entered every 60 days.
+
+The handle shown is **@bahiamcenter**, the only account until the rename
+(Brand Reference v2.3, Transition). When it changes, update it in both home
+pages: the Instagram section, the contact block, and `sameAs` in the JSON-LD.
+The feed itself follows the account the token belongs to, so it needs no change.
+
 ## Editing
 
 **Home** is two real pages, `/` (Spanish) and `/en/` (English), linked with
@@ -193,6 +233,9 @@ either point them at an evergreen `/costa-combat/` page with `public/_redirects`
 re-pointing in `_redirects` too — never delete them.
 
 ## Open items
+
+- **Instagram token not set yet.** Until `IG_ACCESS_TOKEN` is added (see
+  Instagram feed), the section shows only the follow link.
 
 - **The `.ai` masters are the real logo source.** `assets/costa-combat-mark.svg`
   was extracted from `BMC Brand Assets/JJC/BAHIA COMBAT.ai` — the mark plus the
