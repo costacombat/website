@@ -15,6 +15,7 @@ public/
 ├── index.html                          home (Spanish): classes, schedule, coaches, FAQ, contact
 ├── en/index.html                       home (English) — a full copy, see Editing
 ├── sitemap.xml                         the two home pages; submit in Search Console
+├── robots.txt                          points crawlers at the sitemap (Cloudflare prepends its managed rules)
 ├── _redirects                          short links — costacombat.com/a1 and friends
 ├── 404.html                            shown for unknown paths
 ├── _headers                            cache + security headers
@@ -210,7 +211,7 @@ re-pointing in `_redirects` too — never delete them.
   adjust that one value in `.coach img`.
 - **Image weight.** The home pages serve WebP (about half the size of the JPEGs, made
   with `cwebp -q 78 -m 6`, available via `nix shell nixpkgs#libwebp`). The promo pages
-  still use the JPEGs. Re-run the conversion if a photo changes.
+  do too. Re-run the conversion if a photo changes.
 - **Address (owner, 28 Oct 2026):** text says `Calamar 12 (dentro de Torre N)
   · La Cruz de Huanacaxtle, Nayarit`, replacing guide v2.0.1's Calamar 9. The
   map link stays on the Google Maps entry listed as Calamar 9, which shows the
