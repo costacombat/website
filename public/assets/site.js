@@ -133,6 +133,45 @@
     setLang(initial, false);
   }
 
+  /* ---- Instagram feed (home) ---- */
+
+  /* /api/instagram is answered by src/worker.js, which holds the access token
+     server-side and caches the posts for an hour. Any failure leaves the grid
+     hidden, so the section falls back to its follow link. */
+  var feed = document.querySelector("[data-insta-feed]");
+  if (feed && window.fetch) {
+    fetch("/api/instagram", { headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : { posts: [] }; })
+      .then(function (d) {
+        var posts = (d && d.posts) || [];
+        if (!posts.length) return;
+        var en = document.documentElement.lang === "en";
+        posts.forEach(function (p) {
+          var li = document.createElement("li");
+          var a = document.createElement("a");
+          a.href = p.link;
+          a.rel = "noopener";
+          if (p.video) a.className = "is-video";
+          var img = document.createElement("img");
+          img.src = p.image;
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.width = 640;
+          img.height = 640;
+          var text = (p.caption || "").replace(/\s+/g, " ").trim();
+          if (text.length > 140) text = text.slice(0, 137) + "…";
+          img.alt = text || (en ? "Costa Combat post on Instagram" : "Publicación de Costa Combat en Instagram");
+          // A broken image (Instagram's signed URLs expire) removes its tile.
+          img.addEventListener("error", function () { li.remove(); });
+          a.appendChild(img);
+          li.appendChild(a);
+          feed.appendChild(li);
+        });
+        feed.hidden = false;
+      })
+      .catch(function () {});
+  }
+
   /* ---- Google Ads conversion ---- */
 
   /* Every WhatsApp link counts, wherever it sits on the page. The Google tag in
