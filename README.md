@@ -218,3 +218,10 @@ re-pointing in `_redirects` too — never delete them.
 - **The map link is a `maps.app.goo.gl` shortener.** It was set up to resolve to
   a place entry named "Torre M" at 20.7539361, -105.3775034. The guide now says
   the building is Torre N; check the pin still lands on the right door.
+- **Google Business Profile pin is off by about 160 m (19 Nov 2026).** The
+  profile (`sameAs`, cid 9936370006131875432, share link
+  `maps.app.goo.gl/hVCxCUxu5QTfgbpY8`) sits at 20.7544076, -105.3760604, the
+  spot Google geocodes for "Calamar 12". The building is the "Torre M" entry
+  the site's map link uses. Once the pin is dragged onto the building in the
+  profile and Google approves it, point the address link and `hasMap` at the
+  profile share link instead.
