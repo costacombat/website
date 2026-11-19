@@ -15,6 +15,7 @@ public/
 ├── index.html                          home (Spanish): classes, schedule, coaches, FAQ, contact
 ├── en/index.html                       home (English) — a full copy, see Editing
 ├── sitemap.xml                         the two home pages; submit in Search Console
+├── robots.txt                          points crawlers at the sitemap (Cloudflare prepends its managed rules)
 ├── _redirects                          short links — costacombat.com/a1 and friends
 ├── 404.html                            shown for unknown paths
 ├── _headers                            cache + security headers
@@ -210,7 +211,7 @@ re-pointing in `_redirects` too — never delete them.
   adjust that one value in `.coach img`.
 - **Image weight.** The home pages serve WebP (about half the size of the JPEGs, made
   with `cwebp -q 78 -m 6`, available via `nix shell nixpkgs#libwebp`). The promo pages
-  still use the JPEGs. Re-run the conversion if a photo changes.
+  do too. Re-run the conversion if a photo changes.
 - **Address (owner, 28 Oct 2026):** text says `Calamar 12 (dentro de Torre N)
   · La Cruz de Huanacaxtle, Nayarit`, replacing guide v2.0.1's Calamar 9. The
   map link stays on the Google Maps entry listed as Calamar 9, which shows the
@@ -218,3 +219,10 @@ re-pointing in `_redirects` too — never delete them.
 - **The map link is a `maps.app.goo.gl` shortener.** It was set up to resolve to
   a place entry named "Torre M" at 20.7539361, -105.3775034. The guide now says
   the building is Torre N; check the pin still lands on the right door.
+- **Google Business Profile pin is off by about 160 m (19 Nov 2026).** The
+  profile (`sameAs`, cid 9936370006131875432, share link
+  `maps.app.goo.gl/hVCxCUxu5QTfgbpY8`) sits at 20.7544076, -105.3760604, the
+  spot Google geocodes for "Calamar 12". The building is the "Torre M" entry
+  the site's map link uses. Once the pin is dragged onto the building in the
+  profile and Google approves it, point the address link and `hasMap` at the
+  profile share link instead.
