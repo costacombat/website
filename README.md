@@ -3,8 +3,9 @@
 Static site for Costa Combat, the studio's only brand since Brand Reference
 v2.0. It moved here from bahiamovement.com, which now only redirects. No build
 step — `public/` is served as-is by a static-assets Cloudflare Worker (not a
-Pages project; see Deploy below). The Worker and repo keep their old
-`bahiamovement` name; internal names may stay, per the guide.
+Pages project; see Deploy below). The Worker is now named
+`costacombat-dot-com` in Cloudflare, and `name` in `wrangler.jsonc` must match it
+or builds from `main` stop deploying.
 
 Contents: the home page with the weekly schedule, the two launch campaign
 landing pages, and the short links that the printed QR codes use.
@@ -75,7 +76,7 @@ A push to `main` triggers a build. Nothing else needs configuring.
 ### Domains
 
 The Worker serves `costacombat.com` and `www.costacombat.com` (Workers & Pages →
-`bahiamovement` → Settings → Domains & Routes). Cloudflare writes those DNS
+`costacombat-dot-com` → Settings → Domains & Routes). Cloudflare writes those DNS
 records itself — **do not create A, AAAA or CNAME records by hand**, they pin
 you to IPs Cloudflare is free to change. Keep them proxied, and keep SSL/TLS on
 **Full** or **Full (strict)**; Flexible gives a redirect loop.
